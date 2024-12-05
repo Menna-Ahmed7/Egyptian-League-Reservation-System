@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique @db.VarChar(100)
+  password     String
+  firstName    String   @db.VarChar(50)
+  lastName     String   @db.VarChar(50)
+  birthDate    DateTime
+  gender       Gender
+  role         Role
+  City         String
+  Address      String?
+  emailAddress String
+  tickets      Ticket[]
+}
+
+model Match {
+  id        String   @id @default(uuid())
+  HomeTeam  String
+  AwayTeam  String
+  date_time DateTime
+  Refree    String
+  linesman1 String
+  linesman2 String
+  stadium   Stadium  @relation(fields: [stadiumId], references: [id])
+  stadiumId String
+  tickets   Ticket[]
+}
+
+model Stadium {
+  id             String  @id @default(uuid())
+  vipRows        Int
+  vipSeatsPerRow Int
+  seats          Seat[]
+  matches        Match[]
+}
+
+model Seat {
+  id         Int     @id @default(autoincrement())
+  // Although not directly related to the database, 
+  // consider structuring the Seat model 
+  //to easily map seat positions for frontend rendering
+  rowNumber  Int
+  seatNumber Int
+  stadium    Stadium @relation(fields: [stadiumid], references: [id])
+  stadiumid  String
+  ticket     Ticket[]
+}
+
+model Ticket {
+  id         Int      @id @default(autoincrement())
+  reservedAt DateTime
+  match      Match    @relation(fields: [matchid], references: [id])
+  matchid    String
+  seat       Seat     @relation(fields: [seatid], references: [id])
+  seatid     Int     
+  user       User     @relation(fields: [userid], references: [id])
+  userid     String
+  @@unique([seatid,matchid])
+}
+
+enum Gender {
+  Male
+  Female
+  Other
+}
+
+enum Role {
+  Fan
+  Manager
+  Admin
+}
