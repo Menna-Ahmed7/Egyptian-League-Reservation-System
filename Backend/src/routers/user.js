@@ -1,0 +1,82 @@
+const { generateAuthToken, auth } = require("../middleware/auth");
+const express = require("express");
+const prisma = require("../middleware/prisma");
+const router = new express.Router();
+const bcrypt = require("bcryptjs");
+
+// Resource Creation
+router.post("/signup", async (request, response) => {
+  // console.log(request.body);
+  try {
+    const user = await prisma.user.create({
+      data: {
+        username: request.body.username,
+        password: request.body.password,
+        firstName: request.body.firstName,
+        lastName: request.body.lastName,
+        birthDate: new Date(request.body.birthDate), // Convert ISO string to Date
+        gender: request.body.gender,
+        City: request.body.City,
+        Address: request.body.Address,
+        emailAddress: request.body.emailAddress,
+        role: request.body.role,
+        tokens: [], // Initialize with an empty array
+      },
+    });
+    const token = await generateAuthToken(user);
+    const { password, tokens, ...safeUser } = user; // Destructure to exclude sensitive fields
+    response.status(201).send({ user: safeUser, token });
+    // console.log("User created successfully:", user);
+  } catch (error) {
+    if (Object.keys(error).length !== 0)
+      response.status(400).send({ error: error });
+    else response.status(400).send({ error: error.message });
+
+    console.error("Error creating user:", error.message);
+  }
+});
+
+router.post("/login", async (request, response) => {
+  // console.log(request.body);
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        emailAddress: request.body.emailAddress,
+      },
+    });
+    if (!user) throw new Error("Unable to login");
+    const match = await bcrypt.compare(request.body.password, user.password);
+    if (!match) throw new Error("Wrong password");
+
+    const token = await generateAuthToken(user);
+    const { password, tokens, ...safeUser } = user; // Destructure to exclude sensitive fields
+    response.status(201).send({ user: safeUser, token });
+    // console.log("User created successfully:", user);
+  } catch (error) {
+    if (Object.keys(error).length === 0)
+      response.status(400).send({ error: error });
+    else response.status(400).send({ error: error.message });
+
+    console.error("Error Logging:", error.message);
+  }
+});
+
+router.post("/logout", auth, async (request, response) => {
+  try {
+    // remove tokens not equal this
+    const updatedTokens = request.user.tokens.filter(
+      (token) => token !== request.token
+    );
+    // Update the database
+    await prisma.user.update({
+      where: { id: request.user.id },
+      data: {
+        tokens: updatedTokens,
+      },
+    });
+    response.send({ message: "Logged out successfully" });
+  } catch (e) {
+    response.status(500).send(e.message);
+  }
+});
+module.exports = router;

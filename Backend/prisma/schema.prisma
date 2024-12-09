@@ -24,8 +24,9 @@ model User {
   role         Role
   City         String
   Address      String?
-  emailAddress String
+  emailAddress String   @unique
   tickets      Ticket[]
+  tokens       Json? // Use JSON to store the tokens array
 }
 
 model Match {
@@ -50,13 +51,13 @@ model Stadium {
 }
 
 model Seat {
-  id         Int     @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   // Although not directly related to the database, 
   // consider structuring the Seat model 
   //to easily map seat positions for frontend rendering
   rowNumber  Int
   seatNumber Int
-  stadium    Stadium @relation(fields: [stadiumid], references: [id])
+  stadium    Stadium  @relation(fields: [stadiumid], references: [id])
   stadiumid  String
   ticket     Ticket[]
 }
@@ -67,10 +68,11 @@ model Ticket {
   match      Match    @relation(fields: [matchid], references: [id])
   matchid    String
   seat       Seat     @relation(fields: [seatid], references: [id])
-  seatid     Int     
+  seatid     Int
   user       User     @relation(fields: [userid], references: [id])
   userid     String
-  @@unique([seatid,matchid])
+
+  @@unique([seatid, matchid])
 }
 
 enum Gender {
