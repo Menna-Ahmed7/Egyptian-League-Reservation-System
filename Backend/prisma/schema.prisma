@@ -40,10 +40,13 @@ model Match {
   stadium   Stadium  @relation(fields: [stadiumId], references: [id])
   stadiumId String
   tickets   Ticket[]
+
+  @@unique([date_time, stadiumId])
 }
 
 model Stadium {
   id             String  @id @default(uuid())
+  name           String  @unique
   vipRows        Int
   vipSeatsPerRow Int
   seats          Seat[]

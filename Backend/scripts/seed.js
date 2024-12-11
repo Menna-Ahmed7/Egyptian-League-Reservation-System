@@ -11,7 +11,7 @@ async function main() {
   await prisma.seat.deleteMany(); // Delete seats
   await prisma.match.deleteMany(); // Delete matches
   await prisma.stadium.deleteMany(); // Delete stadiums
-  await prisma.user.deleteMany(); // Delete users
+  // await prisma.user.deleteMany(); // Delete users
 
   // console.log("Database cleared. Seeding new data...");
   // // Seed Users

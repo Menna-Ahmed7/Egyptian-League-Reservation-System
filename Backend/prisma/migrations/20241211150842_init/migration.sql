@@ -29,15 +29,18 @@ CREATE TABLE `Match` (
     `linesman2` VARCHAR(191) NOT NULL,
     `stadiumId` VARCHAR(191) NOT NULL,
 
+    UNIQUE INDEX `Match_date_time_stadiumId_key`(`date_time`, `stadiumId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Stadium` (
     `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
     `vipRows` INTEGER NOT NULL,
     `vipSeatsPerRow` INTEGER NOT NULL,
 
+    UNIQUE INDEX `Stadium_name_key`(`name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

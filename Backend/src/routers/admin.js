@@ -33,6 +33,33 @@ router.get("/getAllUsers", auth, async (request, response) => {
   }
 });
 
+router.get("/getManagers", auth, async (request, response) => {
+  // console.log(request.body);
+  try {
+    if (request.user.role === "Admin") {
+      const users = await prisma.user.findMany({
+        where: {
+          role: "Manager",
+        },
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          emailAddress: true,
+        },
+      });
+      response.send(users);
+    } else
+      response.status(403).send({ error: "You're not allowed to access this" });
+    // console.log("User created successfully:", user);
+  } catch (error) {
+    response.status(400).send({ error: error, errorMessage: error.message });
+
+    console.log(error);
+  }
+});
+
 router.delete("/deleteUser/:id", auth, async (request, response) => {
   // console.log(request.body);
   const id = request.params.id;
@@ -63,9 +90,8 @@ router.delete("/deleteUser/:id", auth, async (request, response) => {
       response.status(403).send({ error: "You're not allowed to access this" });
     // console.log("User created successfully:", user);
   } catch (error) {
-    if (Object.keys(error).length === 0)
-      response.status(400).send({ error: error });
-    else response.status(400).send({ error: error.message });
+    response.status(400).send({ error: error, errorMessage: error.message });
+
     console.log(error);
   }
 });
@@ -108,9 +134,8 @@ router.post("/setAsManager/:id", auth, async (request, response) => {
       response.status(403).send({ error: "You're not allowed to access this" });
     // console.log("User created successfully:", user);
   } catch (error) {
-    if (Object.keys(error).length === 0)
-      response.status(400).send({ error: error });
-    else response.status(400).send({ error: error.message });
+    response.status(400).send({ error: error, errorMessage: error.message });
+
     console.log(error);
   }
 });

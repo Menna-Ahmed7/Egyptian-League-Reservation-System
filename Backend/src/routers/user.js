@@ -28,9 +28,7 @@ router.post("/signup", async (request, response) => {
     response.status(201).send({ user: safeUser, token });
     // console.log("User created successfully:", user);
   } catch (error) {
-    if (Object.keys(error).length !== 0)
-      response.status(400).send({ error: error });
-    else response.status(400).send({ error: error.message });
+    response.status(400).send({ error: error, errorMessage: error.message });
 
     console.error("Error creating user:", error.message);
   }
@@ -39,6 +37,16 @@ router.post("/signup", async (request, response) => {
 router.post("/login", async (request, response) => {
   // console.log(request.body);
   try {
+    const requiredFields = ["emailAddress", "password"];
+
+    // Check if all required fields are present in the request body
+    for (const field of requiredFields) {
+      if (!(field in request.body)) {
+        return response
+          .status(400)
+          .send({ error: `Missing required field: ${field}` });
+      }
+    }
     const user = await prisma.user.findUnique({
       where: {
         emailAddress: request.body.emailAddress,
@@ -53,9 +61,7 @@ router.post("/login", async (request, response) => {
     response.status(201).send({ user: safeUser, token });
     // console.log("User created successfully:", user);
   } catch (error) {
-    if (Object.keys(error).length === 0)
-      response.status(400).send({ error: error });
-    else response.status(400).send({ error: error.message });
+    response.status(400).send({ error: error, errorMessage: error.message });
 
     console.error("Error Logging:", error.message);
   }
@@ -76,7 +82,7 @@ router.post("/logout", auth, async (request, response) => {
     });
     response.send({ message: "Logged out successfully" });
   } catch (e) {
-    response.status(500).send(e.message);
+    response.status(400).send({ error: e, errorMessage: e.message });
   }
 });
 module.exports = router;
