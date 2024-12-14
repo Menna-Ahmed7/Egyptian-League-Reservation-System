@@ -247,82 +247,78 @@ router.patch("/editMatch/:id", auth, async (request, response) => {
   }
 });
 
-router.get(
-  "/getSeatsDetailsForManager/:id",
-  auth,
-  async (request, response) => {
-    try {
-      // Check if the user is a Manager
-      if (request.user.role !== "Manager") {
-        return response
-          .status(403)
-          .send({ error: "Only Managers can view seat status" });
-      }
+router.get("/getSeatsDetails/:id", auth, async (request, response) => {
+  try {
+    // Check if the user is a Manager
 
-      const matchId = request.params.id;
+    const matchId = request.params.id;
 
-      // Find the match to ensure it exists
-      const match = await prisma.match.findUnique({
-        where: { id: matchId },
-      });
+    // Find the match to ensure it exists
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+    });
 
-      if (!match) {
-        return response.status(404).send({ error: "Match not found" });
-      }
-      // Get all seats in the stadium for the match
-      const seats = await prisma.seat.findMany({
-        where: {
-          stadiumid: match.stadiumId,
-        },
-        select: {
-          id: true,
-          rowNumber: true,
-          seatNumber: true,
-        },
-      });
-      // Get all reserved seats (tickets) for the match
-      const reservedSeats = await prisma.ticket.findMany({
-        where: {
-          matchid: matchId,
-        },
-        select: {
-          seatid: true,
-        },
-      });
-      //   console.log("seats", reservedSeats);
+    if (!match) {
+      return response.status(404).send({ error: "Match not found" });
+    }
+    // Get all seats in the stadium for the match
+    const seats = await prisma.seat.findMany({
+      where: {
+        stadiumid: match.stadiumId,
+      },
+      select: {
+        id: true,
+        rowNumber: true,
+        seatNumber: true,
+      },
+    });
+    // Get all reserved seats (tickets) for the match
+    const reservedSeats = await prisma.ticket.findMany({
+      where: {
+        matchid: matchId,
+      },
+      select: {
+        seatid: true,
+      },
+    });
+    //   console.log("seats", reservedSeats);
 
-      // Create a set of reserved seat IDs for quick lookup
-      const reservedSeatIds = new Set(
-        reservedSeats.map((ticket) => ticket.seatid)
-      );
-
-      // Map each seat to its status
-      const seatDetails = seats.map((seat) => ({
+    // Create a set of reserved seat IDs for quick lookup
+    const reservedSeatIds = new Set(
+      reservedSeats.map((ticket) => ticket.seatid)
+    );
+    const vacantSeats = seats.filter((seat) => !reservedSeatIds.has(seat.id));
+    let seatDetails = [];
+    if (request.user.role === "Manager")
+      seatDetails = seats.map((seat) => ({
         rowNumber: seat.rowNumber,
         seatNumber: seat.seatNumber,
         status: reservedSeatIds.has(seat.id) ? "reserved" : "vacant",
       }));
+    else
+      seatDetails = vacantSeats.map((seat) => ({
+        rowNumber: seat.rowNumber,
+        seatNumber: seat.seatNumber,
+      }));
+    // Respond with detailed seat information
+    response.send({
+      matchId: match.id,
+      matchDetails: {
+        HomeTeam: match.HomeTeam,
+        AwayTeam: match.AwayTeam,
+        date_time: match.date_time,
+      },
+      seatDetails,
+    });
+  } catch (error) {
+    //   console.error("Error fetching seat details:", error.message);
+    response.status(400).send({
+      error: "An error occurred while fetching seat details",
+      errorMessage: error.message,
+    });
 
-      // Respond with detailed seat information
-      response.send({
-        matchId: match.id,
-        matchDetails: {
-          HomeTeam: match.HomeTeam,
-          AwayTeam: match.AwayTeam,
-          date_time: match.date_time,
-        },
-        seatDetails,
-      });
-    } catch (error) {
-      //   console.error("Error fetching seat details:", error.message);
-      response.status(400).send({
-        error: "An error occurred while fetching seat details",
-        errorMessage: error.message,
-      });
-
-      //   response.status(500).send({ error: "An error occurred while fetching seat details" });
-    }
+    //   response.status(500).send({ error: "An error occurred while fetching seat details" });
   }
-);
+});
 
 module.exports = router;

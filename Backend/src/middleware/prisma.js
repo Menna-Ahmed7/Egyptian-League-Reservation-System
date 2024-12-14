@@ -44,16 +44,21 @@ prisma.$use(async (params, next) => {
     }
 
     // Validate birthDate (must be a valid date)
+    console.log(data.birthDate)
     if (
       data.birthDate &&
       !validator.isDate(data.birthDate.toISOString().split("T")[0])
     ) {
       throw new Error("Invalid birth date");
     }
+    const currentDate = new Date();
 
+    if (data.birthDate && data.birthDate > currentDate) {
+      throw new Error("The birthDate cannot be in the future");
+    }
     // Validate gender (must be one of Male, Female, or Other)
     if (data.gender && !["Male", "Female"].includes(data.gender)) {
-      throw new Error("Gender must be Male, Female, or Other");
+      throw new Error("Gender must be Male, Female");
     }
 
     // Validate emailAddress (must be a valid email)
