@@ -169,10 +169,13 @@ router.post("/addMatch", auth, async (request, response) => {
 router.get("/getStadiumIdByName/:name", async (request, response) => {
   // console.log(request.body);
   try {
-    const match = await prisma.stadium.findUnique({
+    const stadium = await prisma.stadium.findUnique({
       where: { name: request.params.name.trim() },
     });
-    response.send(match);
+    if (!stadium) {
+      return response.status(404).send({ error: "Stadium not found" });
+    }
+    response.send(stadium);
   } catch (error) {
     response.status(400).send({ error: error, errorMessage: error.message });
 
@@ -281,8 +284,6 @@ router.get("/getSeatsDetails/:id", auth, async (request, response) => {
         seatid: true,
       },
     });
-    //   console.log("seats", reservedSeats);
-
     // Create a set of reserved seat IDs for quick lookup
     const reservedSeatIds = new Set(
       reservedSeats.map((ticket) => ticket.seatid)
@@ -300,6 +301,12 @@ router.get("/getSeatsDetails/:id", auth, async (request, response) => {
         rowNumber: seat.rowNumber,
         seatNumber: seat.seatNumber,
       }));
+    console.log(match.stadiumId);
+    const stadiumDetails = await prisma.stadium.findUnique({
+      where: {
+        id: match.stadiumId,
+      },
+    });
     // Respond with detailed seat information
     response.send({
       matchId: match.id,
@@ -308,6 +315,7 @@ router.get("/getSeatsDetails/:id", auth, async (request, response) => {
         AwayTeam: match.AwayTeam,
         date_time: match.date_time,
       },
+      stadiumDetails,
       seatDetails,
     });
   } catch (error) {
@@ -318,6 +326,41 @@ router.get("/getSeatsDetails/:id", auth, async (request, response) => {
     });
 
     //   response.status(500).send({ error: "An error occurred while fetching seat details" });
+  }
+});
+
+router.get("/getMatchById/:id", async (request, response) => {
+  // console.log(request.body);
+  try {
+    const match = await prisma.match.findUnique({
+      where: { id: request.params.id.trim() },
+      include: {
+        stadium: {
+          select: {
+            name: true, // Include only the stadium name
+          },
+        },
+      },
+    });
+    if (!match) {
+      return response.status(404).send({ error: "Match not found" });
+    }
+    const stadiumDetails = await prisma.stadium.findUnique({
+      where: {
+        id: match.stadiumId,
+      },
+    });
+    const { stadium, ...matchData } = match;
+    const transformedResponse = {
+      ...matchData,
+      stadiumName: stadium?.name || null, // Rename "stadium.name" to "stadium_name"
+      stadiumDetails,
+    };
+    response.send(transformedResponse);
+  } catch (error) {
+    response.status(400).send({ error: error, errorMessage: error.message });
+
+    console.log(error);
   }
 });
 
