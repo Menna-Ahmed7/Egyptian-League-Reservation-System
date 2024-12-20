@@ -23,8 +23,17 @@ router.post("/addStadium", auth, async (request, response) => {
           .send({ error: `Missing required field: ${field}` });
       }
     }
-    const vipRows = request.body.vipRows;
-    const vipSeatsPerRow = request.body.vipSeatsPerRow;
+    const { name, vipRows, vipSeatsPerRow } = request.body;
+
+    // Check if the stadium name already exists
+    const existingStadium = await prisma.stadium.findUnique({
+      where: { name },
+    });
+    if (existingStadium) {
+      return response
+        .status(400)
+        .send({ error: `A stadium with the name ${name} already exists` });
+    }
     if (vipRows < 50)
       return response.status(400).send({ error: "Minimum of Rows is 50" });
     if (vipSeatsPerRow < 50)
@@ -140,6 +149,23 @@ router.post("/addMatch", auth, async (request, response) => {
         .send({ error: "The match date cannot be in the past" });
     }
 
+    // Ensure there is a margin of at least 3 hours between matches at the same stadium
+    const marginInMilliseconds = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
+    const existingMatches = await prisma.match.findMany({
+      where: {
+        stadiumId: request.body.stadiumId,
+        date_time: {
+          gte: new Date(matchDate - marginInMilliseconds), // Check matches within 3 hours before
+          lte: new Date(matchDate + marginInMilliseconds), // Check matches within 3 hours after
+        },
+      },
+    });
+
+    if (existingMatches.length > 0) {
+      return response.status(400).send({
+        error: `A match is already scheduled at this stadium during this time. There must be at least 3 hours between matches.`,
+      });
+    }
     // Create the match
     const match = await prisma.match.create({
       data: {
@@ -235,6 +261,15 @@ router.patch("/editMatch/:id", auth, async (request, response) => {
       }
     }
 
+    // Check if the stadiumId exists if provided
+    if (request.body.stadiumId) {
+      const stadium = await prisma.stadium.findUnique({
+        where: { id: request.body.stadiumId },
+      });
+      if (!stadium) {
+        return response.status(400).send({ error: "Stadium not found" });
+      }
+    }
     const updatedMatch = await prisma.match.update({
       where: { id: request.params.id },
       data: request.body,

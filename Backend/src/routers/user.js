@@ -28,7 +28,19 @@ router.post("/signup", async (request, response) => {
     response.status(201).send({ user: safeUser, token });
     // console.log("User created successfully:", user);
   } catch (error) {
-    response.status(400).send({ error: error, errorMessage: error.message });
+    if (error.code === "P2002") {
+      const target = error.meta.target; // Get the unique field causing the error
+      const field = target.includes("username")
+        ? "username"
+        : target.includes("emailAddress")
+        ? "email address"
+        : "unknown field";
+
+      return response.status(400).send({
+        error: `The ${field} already exists. Please use a different one.`,
+      });
+    }
+    response.status(400).send({ error: error.message });
 
     console.error("Error creating user:", error.message);
   }
@@ -52,7 +64,7 @@ router.post("/login", async (request, response) => {
         emailAddress: request.body.emailAddress,
       },
     });
-    if (!user) throw new Error("Unable to login");
+    if (!user) throw new Error("User not found");
     const match = await bcrypt.compare(request.body.password, user.password);
     if (!match) throw new Error("Wrong password");
 
@@ -61,7 +73,7 @@ router.post("/login", async (request, response) => {
     response.status(201).send({ user: safeUser, token });
     // console.log("User created successfully:", user);
   } catch (error) {
-    response.status(400).send({ error: error, errorMessage: error.message });
+    response.status(400).send({ error: error.message });
 
     console.error("Error Logging:", error.message);
   }
@@ -82,7 +94,7 @@ router.post("/logout", auth, async (request, response) => {
     });
     response.send({ message: "Logged out successfully" });
   } catch (e) {
-    response.status(400).send({ error: e, errorMessage: e.message });
+    response.status(400).send({ error: e.message});
   }
 });
 module.exports = router;

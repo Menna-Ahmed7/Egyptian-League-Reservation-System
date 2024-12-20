@@ -86,7 +86,7 @@ router.patch("/editProfile", auth, async (request, response) => {
     response.status(201).send(safeUser);
     // console.log("User created successfully:", user);
   } catch (error) {
-    response.status(400).send({ error: error, errorMessage: error.message });
+    response.status(400).send({ error:error.message });
   }
 });
 
