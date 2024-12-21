@@ -112,7 +112,7 @@ router.post("/addMatch", auth, async (request, response) => {
       "HomeTeam",
       "AwayTeam",
       "date_time",
-      "stadiumId",
+      "stadiumName",
       "Refree",
       "linesman1",
       "linesman2",
@@ -128,7 +128,7 @@ router.post("/addMatch", auth, async (request, response) => {
     // Validate the stadium ID exists in the database
     const stadium = await prisma.stadium.findUnique({
       where: {
-        id: request.body.stadiumId,
+        name: request.body.stadiumName.trim(),
       },
     });
 
@@ -175,7 +175,7 @@ router.post("/addMatch", auth, async (request, response) => {
         Refree: request.body.Refree,
         linesman1: request.body.linesman1,
         linesman2: request.body.linesman2,
-        stadiumId: request.body.stadiumId,
+        stadiumId: stadium.id,
       },
       include: {
         stadium: {
@@ -325,17 +325,17 @@ router.get("/getSeatsDetails/:id", auth, async (request, response) => {
     );
     const vacantSeats = seats.filter((seat) => !reservedSeatIds.has(seat.id));
     let seatDetails = [];
-    if (request.user.role === "Manager")
-      seatDetails = seats.map((seat) => ({
-        rowNumber: seat.rowNumber,
-        seatNumber: seat.seatNumber,
-        status: reservedSeatIds.has(seat.id) ? "reserved" : "vacant",
-      }));
-    else
-      seatDetails = vacantSeats.map((seat) => ({
-        rowNumber: seat.rowNumber,
-        seatNumber: seat.seatNumber,
-      }));
+
+    seatDetails = seats.map((seat) => ({
+      rowNumber: seat.rowNumber,
+      seatNumber: seat.seatNumber,
+      status: reservedSeatIds.has(seat.id) ? "reserved" : "vacant",
+    }));
+    // else
+    //   seatDetails = vacantSeats.map((seat) => ({
+    //     rowNumber: seat.rowNumber,
+    //     seatNumber: seat.seatNumber,
+    //   }));
     console.log(match.stadiumId);
     const stadiumDetails = await prisma.stadium.findUnique({
       where: {

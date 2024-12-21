@@ -86,7 +86,7 @@ router.patch("/editProfile", auth, async (request, response) => {
     response.status(201).send(safeUser);
     // console.log("User created successfully:", user);
   } catch (error) {
-    response.status(400).send({ error:error.message });
+    response.status(400).send({ error: error.message });
   }
 });
 
@@ -97,13 +97,7 @@ router.post("/reserveSeat", auth, async (request, response) => {
     console.log(request.user.role);
 
     // Define required fields for the match
-    const requiredFields = [
-      "matchId",
-      "rowNumber",
-      "seatNumber",
-      "pinNumber",
-      "creditCardNumber",
-    ];
+    const requiredFields = ["matchId", "rowNumber", "seatNumber"];
     for (const field of requiredFields) {
       if (!(field in request.body)) {
         return response
@@ -112,9 +106,8 @@ router.post("/reserveSeat", auth, async (request, response) => {
       }
     }
 
-    const { matchId, rowNumber, seatNumber, pinNumber, creditCardNumber } =
-      request.body;
-    console.log(matchId, rowNumber, seatNumber, pinNumber, creditCardNumber);
+    const { matchId, rowNumber, seatNumber } = request.body;
+    console.log(matchId, rowNumber, seatNumber);
     // Validate the match exists
     const match = await prisma.match.findUnique({
       where: { id: matchId },
@@ -153,34 +146,6 @@ router.post("/reserveSeat", auth, async (request, response) => {
       return response.status(400).send({ error: "Seat is already reserved" });
     }
 
-    // Check if the fields are numbers
-    if (!Number.isFinite(Number(pinNumber))) {
-      return response.status(400).send({
-        error: " Pin Number must be valid number",
-      });
-    }
-    if (!Number.isFinite(Number(creditCardNumber))) {
-      return response.status(400).send({
-        error: "CreditCardNumber must be valid number",
-      });
-    }
-
-    // Additional checks
-    if (pinNumber.toString().length !== 4) {
-      return response
-        .status(400)
-        .send({ error: "pinNumber must be exactly 4 digits" });
-    }
-
-    if (
-      creditCardNumber.toString().length < 13 ||
-      creditCardNumber.toString().length > 19
-    ) {
-      return response
-        .status(400)
-        .send({ error: "creditCardNumber must be between 13 and 19 digits" });
-    }
-
     // Reserve the seat by creating a ticket
     const ticket = await prisma.ticket.create({
       data: {
@@ -201,60 +166,67 @@ router.post("/reserveSeat", auth, async (request, response) => {
   }
 });
 
+router.delete(
+  "/cancelReservation/:ticketId",
+  auth,
+  async (request, response) => {
+    try {
+      const ticketId = request.params.ticketId;
 
-router.delete("/cancelReservation/:ticketId", auth, async (request, response) => {
-  try {
-    const ticketId = request.params.ticketId;
-
-    // Find the ticket and include match details
-    const ticket = await prisma.ticket.findUnique({
-      where: { id: parseInt(ticketId) },
-      include: {
-        match: {
-          select: {
-            date_time: true, // Fetch the match date-time
+      // Find the ticket and include match details
+      const ticket = await prisma.ticket.findUnique({
+        where: { id: parseInt(ticketId) },
+        include: {
+          match: {
+            select: {
+              date_time: true, // Fetch the match date-time
+            },
           },
         },
-      },
-    });
+      });
 
-    if (!ticket) {
-      return response.status(404).send({ error: "Ticket not found" });
+      if (!ticket) {
+        return response.status(404).send({ error: "Ticket not found" });
+      }
+
+      // Check if the ticket belongs to the authenticated user
+      if (ticket.userid !== request.user.id) {
+        return response
+          .status(403)
+          .send({ error: "You are not authorized to cancel this ticket" });
+      }
+
+      // Check if the event is less than 3 days away
+      const eventDate = new Date(ticket.match.date_time);
+      const currentDate = new Date();
+      const daysUntilEvent = Math.floor(
+        (eventDate - currentDate) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysUntilEvent < 3) {
+        return response
+          .status(400)
+          .send({
+            error: "You can only cancel tickets up to 3 days before the event",
+          });
+      }
+
+      // Delete the ticket (vacate the seat)
+      await prisma.ticket.delete({
+        where: { id: ticket.id },
+      });
+
+      response.send({
+        message: "Reservation cancelled and seat is now vacant",
+      });
+    } catch (error) {
+      console.error("Error cancelling reservation:", error.message);
+      response.status(500).send({
+        error: "An error occurred while cancelling the reservation",
+        errorMessage: error.message,
+      });
     }
-
-    // Check if the ticket belongs to the authenticated user
-    if (ticket.userid !== request.user.id) {
-      return response
-        .status(403)
-        .send({ error: "You are not authorized to cancel this ticket" });
-    }
-
-    // Check if the event is less than 3 days away
-    const eventDate = new Date(ticket.match.date_time);
-    const currentDate = new Date();
-    const daysUntilEvent = Math.floor((eventDate - currentDate) / (1000 * 60 * 60 * 24));
-
-    if (daysUntilEvent < 3) {
-      return response
-        .status(400)
-        .send({ error: "You can only cancel tickets up to 3 days before the event" });
-    }
-
-    // Delete the ticket (vacate the seat)
-    await prisma.ticket.delete({
-      where: { id: ticket.id },
-    });
-
-    response.send({ message: "Reservation cancelled and seat is now vacant" });
-  } catch (error) {
-    console.error("Error cancelling reservation:", error.message);
-    response.status(500).send({
-      error: "An error occurred while cancelling the reservation",
-      errorMessage: error.message,
-    });
   }
-});
-
-
+);
 
 module.exports = router;
