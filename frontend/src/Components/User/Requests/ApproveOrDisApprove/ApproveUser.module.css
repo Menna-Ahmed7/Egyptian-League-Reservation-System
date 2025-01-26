@@ -1,0 +1,51 @@
+@import '../../../../variables.css';
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--babyblue);
+  padding: 20px;
+  border: 1px solid var(--blue); 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  border-radius: 10px;
+  text-shadow: none;
+}
+
+.popup_button {
+  height: 100%;
+  width: 100%;
+  color: var(--sdgreen); 
+  background-color: transparent;
+  border: none;
+}
+
+.deleteText {
+  color: var(--dgreen); 
+  text-align: center;
+  font-size: larger;
+}
+
+.delete_button {
+  background-color: var(--brown); 
+  margin-left: 10px;
+  color: white; 
+  border: none;
+  border-radius: 5px; 
+}
+
+.cancel_button {
+  background-color: var(--sdgreen); /* Use --sdgreen for cancel button */
+  color: white; /* Ensure text is visible */
+  border: none;
+  border-radius: 5px; /* Optional for better visual appearance */
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}

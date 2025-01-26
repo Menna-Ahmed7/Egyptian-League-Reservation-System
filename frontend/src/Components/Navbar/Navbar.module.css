@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+.nav_bar {
+  right: 0;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  background-color: #0FA4AF;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  color: #003135 ;
+  margin-bottom: 46px;
+}
+
+.navetor h1 a {
+  color: white;
+  text-decoration: none;
+}
+
+.navetor_list1 {
+  width: 30%;
+  height: 40%;
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 5px;
+  color: white;
+}
+
+.navetor_list1 li a {
+  width: 100%;
+  color: white;
+  text-decoration: none;
+}
+.navetor_list1 li{
+  cursor: pointer;
+}

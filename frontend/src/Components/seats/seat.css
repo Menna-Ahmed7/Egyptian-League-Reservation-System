@@ -1,0 +1,15 @@
+
+@import '../../variables.css';
+.selected {
+  color: var(--babyblue);
+}
+.not-selected {
+  color: var(--sdgreen);
+}
+.reserved {
+  color: var(--brown);
+  cursor: not-allowed;
+}
+.icon {
+  font-size: large;
+}

@@ -1,0 +1,88 @@
+@import '../../variables.css';
+
+.signup {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form_container {
+  color: var(--babyblue);
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  width: 30vw;
+  margin-top: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  margin: auto;
+  background-color: var(--dgreen); /* Updated background color */
+  padding: 13px;
+}
+
+.form_container form {
+  width: 85%;
+  display: block;
+}
+
+.form_group {
+  height: 10%;
+  color: var(--sdgreen); /* Updated color */
+}
+
+.form_group input,
+select {
+  width: 100%;
+  border-radius: 4px;
+  border: 3px solid var(--dgreen); /* Updated border color */
+  height: 43px;
+  background-color: var(--babyblue); /* Updated background color */
+  color: var(--sdgreen); /* Updated text color */
+  font-family: Helvetica Neue;
+}
+
+h2 {
+  color: white; /* Updated color */
+  text-align: center;
+}
+
+input:focus,
+select:focus {
+  border: 3px solid var(--blue); /* Updated focus border color */
+}
+
+.form_container button {
+  display: block;
+  margin: auto;
+  border-radius: 15px;
+  width: 100%;
+  height: 20%;
+  background-color: var(--blue); /* Updated background color */
+  border: 3px solid var(--blue); /* Updated border color */
+  margin-bottom: 10px;
+  color: white;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+.signinlink span {
+  font-size: 10px;
+  color: var(--babyblue); /* Baby blue color for the 'Already have one?' text */
+}
+
+.signinlink a {
+  font-size: 15px;
+  color: var(--blue); /* Blue color for the 'Signin' link */
+  font-weight: bold;
+  text-decoration: underline; /* Remove underline */
+  margin-left: 5px; /* Space between 'Already have one?' and the link */
+
+}
+
+.signinlink {
+  margin-bottom: 10px;
+  text-align: center;
+  color: var(--babyblue);
+}

@@ -1,0 +1,91 @@
+/* Import variables */
+@import '../../../variables.css';
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--sdgreen);
+  padding: 46px;
+  border: 3px solid #ccc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  text-shadow: none;
+  color: white;
+}
+form {
+  height: 100%;
+  display: block;
+}
+.headers {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.form_rows {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.form_columns {
+  height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+.column1 {
+  height: 100%;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: start;
+}
+.column2 {
+  height: 100%;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: end;
+}
+.close_button {
+  color: black;
+  color: var(--sdgreen);
+  
+}
+input:focus {
+  border: 3px solid #198754;
+}
+.popup input:focus{
+  border: 3px solid white;
+}
+h3 {
+  color: #5c7064;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+.form_columns label {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  font-size: 60%;
+  color: #72757a;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  height: 100%;
+  margin-top: 5%;
+}
+.sumbit_button {
+  margin-bottom: 3%;
+  height: 10%;
+  width: 20%;
+  margin-left: 80%;
+  
+}
+.popup_button {
+  color: white;
+  background-color: var(--babyblue);
+}

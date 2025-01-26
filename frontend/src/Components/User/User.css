@@ -1,0 +1,59 @@
+@import '../../variables.css';
+
+.delete-user {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--dgreen); /* Use --dgreen for text color */
+  text-shadow: none;
+  background-color: var(--dgreen); /* Use --blue for background */
+  border-radius: 23px;
+  padding: 23px;
+  margin-top: 23px;
+}
+
+.delete-user-icon {
+  font-size: 33px;
+  margin-bottom: 23px;
+  color: var(--brown); /* Use --brown for icon color */
+}
+
+.delete-user-name {
+  font-size: 23px;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  color: var(--brown); /* Use --sdgreen for name text */
+}
+
+.delete-user-username {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0;
+  margin: 0;
+  color: var(--babyblue); /* Use --babyblue for username text */
+}
+
+.delete-user-location,
+.delete-user-email,
+.delete-user-info {
+  margin-top: 15px;
+  margin-bottom: 0;
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--babyblue); /* Use --sdgreen for additional user details */
+}
+
+.delete-user-info {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  color: var(--babyblue); /* Use --dgreen for info section */
+}
+
+.delete-user-p-icon {
+  margin-right: 5px;
+  color: var(--brown); /* Use --brown for icon next to text */
+}
+

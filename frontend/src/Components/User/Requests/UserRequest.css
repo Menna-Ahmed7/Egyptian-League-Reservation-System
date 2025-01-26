@@ -1,0 +1,18 @@
+@import '../../../variables.css';
+
+.request-user {
+  position: relative;
+  color: var(--dgreen);
+}
+
+.request-user-icon-approve {
+  position: absolute;
+  right: 23px;
+  top: 23px;
+  font-size: 23px;
+  color: var(--dgreen); /* Use --dgreen for approval icon */
+}
+
+.matches-container{
+  color: var(--dgreen);
+}

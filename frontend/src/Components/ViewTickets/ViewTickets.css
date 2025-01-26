@@ -1,0 +1,23 @@
+@import '../../variables.css';
+
+.cancel-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px; /* Adjust as needed */
+}
+
+.ticket-cancel {
+  font-size: medium;
+  padding: 5px 10px;
+  background-color: red; /* Button color */
+  color: white; /* Text color */
+  border: none;
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.ticket-cancel:hover {
+  background-color: darkred; /* Hover effect */
+}
+

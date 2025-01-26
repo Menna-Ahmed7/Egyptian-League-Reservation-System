@@ -1,0 +1,88 @@
+@import '../../variables.css';
+
+.match-details { 
+  background-color: var(--dgreen); /* Set background color to dgreen */
+  margin-top: -46px;
+}
+
+.match-details-container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between !important;
+  min-height: 100vh;
+  background-color: var(--dgreen); /* Set container background to babyblue */
+}
+
+.match-details-row {
+  width: 100%;
+}
+
+.match-details-teams {
+  display: flex;
+  justify-content: space-around;
+}
+
+.match-details-teams p {
+  color: white; /* Use sdgreen for text color */
+  font-size: 46px;
+  font-weight: 600;
+  text-shadow: 2px 2px 8px var(--dgreen); /* Use dgreen for text shadow */
+}
+
+.match-details-time {
+  text-shadow: 2px 2px 8px var(--dgreen); /* Use dgreen for text shadow */
+  font-size: 65px;
+  font-weight: 700;
+}
+
+.match-details-day {
+  text-shadow: 2px 2px 8px var(--dgreen); /* Use dgreen for text shadow */
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.match-details-teams img {
+  width: 230px;
+  height: 230px;
+}
+
+.match-details-container img {
+  display: block;
+  margin: auto;
+}
+
+.match-details-tickets {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.match-details-ticket {
+  margin: 10px;
+}
+
+.match-details-tickets-header h1 {
+  color: White; /* Use blue for tickets header */
+  font-weight: 600;
+  text-shadow: 2px 2px 8px var(--dgreen); /* Use dgreen for text shadow */
+}
+
+.match-details-tickets-header button {
+  color: White; /* Use blue for button text */
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Overlay uses black with opacity */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+}

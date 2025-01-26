@@ -1,0 +1,33 @@
+.profileContainer {
+  background-color: var(--dgreen);
+  border-radius: 5px;
+  width: 100%;
+  text-align: left;
+  padding: 20px;
+  color: white;
+}
+.profileContainer .form-control {
+  margin-bottom: 30px;
+}
+.profileContainer .date-picker-control {
+  width: 100%;
+}
+.profileContainer .date-picker-control label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.profileContainer button[type="submit"] {
+  background-color: var(--blue);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  margin-left: 0;
+  cursor: pointer;
+}
+
+.profileContainer button[type="submit"]:hover,
+.profileContainer button[type="submit"]:focus,
+.profileContainer button[type="submit"]:active {
+  background-color: var(--sdgreen);
+}

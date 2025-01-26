@@ -1,0 +1,40 @@
+@import '../../variables.css';
+.upc {
+    border-radius: 4px;
+    padding-bottom: 20px;
+    background: var(--babyblue); /* Use babyblue from variables.css */
+}
+
+.gradiant {
+    background-image: linear-gradient(var(--sdgreen), var(--blue));
+    height: 125px;
+    border-radius: 4px 4px 0 0;
+}
+
+.profile-down {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-down img {
+    width: 116px;
+    height: 116px;
+    border-radius: 50%;
+    margin-top: -75px;
+    padding: 5px;
+    background: var(--blue); /* Use babyblue for image background */
+}
+
+.profile-title {
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--sdgreen); /* Use sdgreen for the title */
+}
+
+.profile-description {
+    padding: 20px 40px;
+    font-size: 16px;
+    color: var(--sdgreen); /* Use sdgreen for the description text */
+}
