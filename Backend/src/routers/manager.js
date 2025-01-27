@@ -3,8 +3,372 @@ const express = require("express");
 const prisma = require("../middleware/prisma");
 const router = new express.Router();
 const validator = require("validator");
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Stadium:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         vipRows:
+ *           type: integer
+ *         vipSeatsPerRow:
+ *           type: integer
+ *     Match:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         HomeTeam:
+ *           type: string
+ *         AwayTeam:
+ *           type: string
+ *         date_time:
+ *           type: string
+ *           format: date-time
+ *         Refree:
+ *           type: string
+ *         linesman1:
+ *           type: string
+ *         linesman2:
+ *           type: string
+ *         stadiumId:
+ *           type: integer
+ *         stadiumName:
+ *           type: string
+ *     Seat:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         rowNumber:
+ *           type: integer
+ *         seatNumber:
+ *           type: integer
+ *         status:
+ *           type: string
+ *           enum: [reserved, vacant]
+ */
+/**
+ * @swagger
+ * /addStadium:
+ *   post:
+ *     summary: Add a new stadium
+ *     description: Only accessible by Managers, creates a new stadium with the provided details.
+ *     tags: [Stadium]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the stadium
+ *               vipRows:
+ *                 type: integer
+ *                 description: The number of VIP rows in the stadium
+ *               vipSeatsPerRow:
+ *                 type: integer
+ *                 description: The number of seats per VIP row
+ *     responses:
+ *       201:
+ *         description: Stadium created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Stadium'
+ *       400:
+ *         description: Bad request, missing required fields or invalid data
+ *       404:
+ *         description: Unauthorized access or resource not found
+ */
 
-// Resource Creation
+/**
+ * @swagger
+ * /getStadiums:
+ *   get:
+ *     summary: Retrieve all stadiums
+ *     description: Get a list of all stadiums in the system.
+ *     tags: [Stadium]
+ *     responses:
+ *       200:
+ *         description: List of stadiums
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Stadium'
+ *       400:
+ *         description: Error occurred while fetching stadiums
+ */
+
+/**
+ * @swagger
+ * /getMatches:
+ *   get:
+ *     summary: Retrieve all matches
+ *     description: Get a list of all scheduled matches, including stadium names.
+ *     tags: [Match]
+ *     responses:
+ *       200:
+ *         description: List of matches with stadium names
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Match'
+ *       400:
+ *         description: Error occurred while fetching matches
+ */
+
+/**
+ * @swagger
+ * /addMatch:
+ *   post:
+ *     summary: Add a new match
+ *     description: Only accessible by Managers, creates a new match with provided details.
+ *     tags: [Match]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               HomeTeam:
+ *                 type: string
+ *               AwayTeam:
+ *                 type: string
+ *               date_time:
+ *                 type: string
+ *                 format: date-time
+ *               stadiumName:
+ *                 type: string
+ *               Refree:
+ *                 type: string
+ *               linesman1:
+ *                 type: string
+ *               linesman2:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Match created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Match'
+ *       400:
+ *         description: Bad request, missing required fields or invalid data
+ *       404:
+ *         description: Stadium not found or invalid date_time
+ */
+
+/**
+ * @swagger
+ * /getStadiumIdByName/{name}:
+ *   get:
+ *     summary: Retrieve stadium by name
+ *     description: Get stadium details based on the provided name.
+ *     tags: [Stadium]
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         description: Name of the stadium to search for
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Stadium details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Stadium'
+ *       404:
+ *         description: Stadium not found
+ */
+
+/**
+ * @swagger
+ * /editMatch/{id}:
+ *   patch:
+ *     summary: Edit match details
+ *     description: Only accessible by Managers, updates match details for a specific match ID.
+ *     tags: [Match]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Match ID to be updated
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               HomeTeam:
+ *                 type: string
+ *               AwayTeam:
+ *                 type: string
+ *               date_time:
+ *                 type: string
+ *                 format: date-time
+ *               stadiumId:
+ *                 type: string
+ *               Refree:
+ *                 type: string
+ *               linesman1:
+ *                 type: string
+ *               linesman2:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Match updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Match'
+ *       400:
+ *         description: Invalid updates or invalid data
+ *       404:
+ *         description: Match not found
+ */
+
+/**
+ * @swagger
+ * /getSeatsDetails/{id}:
+ *   get:
+ *     summary: Retrieve seat details for a match
+ *     description: Get a list of all seats for the match with their status (vacant/reserved).
+ *     tags: [Seat]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Match ID to get seat details for
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Seat details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SeatDetails'
+ *       400:
+ *         description: Error fetching seat details
+ *       404:
+ *         description: Match not found
+ */
+
+/**
+ * @swagger
+ * /getMatchById/{id}:
+ *   get:
+ *     summary: Retrieve match details by ID
+ *     description: Get detailed match information for a specific match ID.
+ *     tags: [Match]
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Match ID to fetch details for
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Match details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Match'
+ *       404:
+ *         description: Match not found
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Stadium:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         vipRows:
+ *           type: integer
+ *         vipSeatsPerRow:
+ *           type: integer
+ *     Match:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         HomeTeam:
+ *           type: string
+ *         AwayTeam:
+ *           type: string
+ *         date_time:
+ *           type: string
+ *           format: date-time
+ *         stadiumName:
+ *           type: string
+ *         Refree:
+ *           type: string
+ *         linesman1:
+ *           type: string
+ *         linesman2:
+ *           type: string
+ *     SeatDetails:
+ *       type: object
+ *       properties:
+ *         matchId:
+ *           type: string
+ *         matchDetails:
+ *           type: object
+ *           properties:
+ *             HomeTeam:
+ *               type: string
+ *             AwayTeam:
+ *               type: string
+ *             date_time:
+ *               type: string
+ *               format: date-time
+ *         stadiumDetails:
+ *           $ref: '#/components/schemas/Stadium'
+ *         seatDetails:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               rowNumber:
+ *                 type: integer
+ *               seatNumber:
+ *                 type: integer
+ *               status:
+ *                 type: string
+ */
 router.post("/addStadium", auth, async (request, response) => {
   // console.log(request.body);
   try {

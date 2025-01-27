@@ -1,0 +1,1249 @@
+
+window.onload = function() {
+  // Build a system
+  var url = window.location.search.match(/url=([^&]+)/);
+  if (url && url.length > 1) {
+    url = decodeURIComponent(url[1]);
+  } else {
+    url = window.location.origin;
+  }
+  var options = {
+  "swaggerDoc": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Your API",
+      "version": "1.0.0",
+      "description": "Your API documentation"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        },
+        "BearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT"
+        }
+      },
+      "schemas": {
+        "User": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "birthDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "gender": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Address": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "emailAddress": {
+              "type": "string"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "Admin",
+                "Fan",
+                "Manager"
+              ]
+            }
+          }
+        },
+        "Ticket": {
+          "type": "object",
+          "properties": {
+            "match": {
+              "type": "object",
+              "properties": {
+                "HomeTeam": {
+                  "type": "string"
+                },
+                "AwayTeam": {
+                  "type": "string"
+                },
+                "date_time": {
+                  "type": "string"
+                },
+                "stadium": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "seat": {
+              "type": "object",
+              "properties": {
+                "rowNumber": {
+                  "type": "integer"
+                },
+                "seatNumber": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "Stadium": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "vipRows": {
+              "type": "integer"
+            },
+            "vipSeatsPerRow": {
+              "type": "integer"
+            }
+          }
+        },
+        "Match": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "HomeTeam": {
+              "type": "string"
+            },
+            "AwayTeam": {
+              "type": "string"
+            },
+            "date_time": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "Refree": {
+              "type": "string"
+            },
+            "linesman1": {
+              "type": "string"
+            },
+            "linesman2": {
+              "type": "string"
+            },
+            "stadiumId": {
+              "type": "integer"
+            },
+            "stadiumName": {
+              "type": "string"
+            }
+          }
+        },
+        "Seat": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "rowNumber": {
+              "type": "integer"
+            },
+            "seatNumber": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "reserved",
+                "vacant"
+              ]
+            }
+          }
+        },
+        "SeatDetails": {
+          "type": "object",
+          "properties": {
+            "matchId": {
+              "type": "string"
+            },
+            "matchDetails": {
+              "type": "object",
+              "properties": {
+                "HomeTeam": {
+                  "type": "string"
+                },
+                "AwayTeam": {
+                  "type": "string"
+                },
+                "date_time": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "stadiumDetails": {
+              "$ref": "#/components/schemas/Stadium"
+            },
+            "seatDetails": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "rowNumber": {
+                    "type": "integer"
+                  },
+                  "seatNumber": {
+                    "type": "integer"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "SignupRequest": {
+          "type": "object",
+          "required": [
+            "username",
+            "password",
+            "firstName",
+            "lastName",
+            "birthDate",
+            "gender",
+            "City",
+            "Address",
+            "emailAddress",
+            "role"
+          ],
+          "properties": {
+            "username": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            },
+            "firstName": {
+              "type": "string"
+            },
+            "lastName": {
+              "type": "string"
+            },
+            "birthDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "gender": {
+              "type": "string"
+            },
+            "City": {
+              "type": "string"
+            },
+            "Address": {
+              "type": "string"
+            },
+            "emailAddress": {
+              "type": "string",
+              "format": "email"
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "Admin",
+                "Fan",
+                "Manager"
+              ]
+            }
+          }
+        },
+        "LoginRequest": {
+          "type": "object",
+          "required": [
+            "emailAddress",
+            "password"
+          ],
+          "properties": {
+            "emailAddress": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "tags": [
+      {
+        "name": "Authentication",
+        "description": "Authentication related APIs (Login, Logout, etc.)"
+      },
+      {
+        "name": "Admin",
+        "description": "Admin related APIs (Signup, Profile, etc.)"
+      },
+      {
+        "name": "User",
+        "description": "User related APIs (Profile, Info, etc.)"
+      },
+      {
+        "name": "Reservation",
+        "description": "Reservation related APIs (Reserve, Cancel, etc.)"
+      }
+    ],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "paths": {
+      "/getAllUsers": {
+        "get": {
+          "summary": "Retrieve all users with role \"Fan\"",
+          "description": "Only accessible by Admins, returns a list of users with the \"Fan\" role.",
+          "tags": [
+            "Admin"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of users",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "emailAddress": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Unauthorized access"
+            }
+          }
+        }
+      },
+      "/getManagers": {
+        "get": {
+          "summary": "Retrieve all users with role \"Manager\"",
+          "description": "Only accessible by Admins, returns a list of users with the \"Manager\" role.",
+          "tags": [
+            "Admin"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of managers",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "username": {
+                          "type": "string"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "emailAddress": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Unauthorized access"
+            }
+          }
+        }
+      },
+      "/deleteUser/{id}": {
+        "delete": {
+          "summary": "Delete a user by ID",
+          "description": "Deletes a user if they exist. Only Admins can perform this action.",
+          "tags": [
+            "Admin"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "User ID to delete",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User deleted successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Unauthorized access"
+            },
+            "404": {
+              "description": "User not found"
+            }
+          }
+        }
+      },
+      "/setAsManager/{id}": {
+        "post": {
+          "summary": "Promote a user to manager",
+          "description": "Changes a user's role to \"Manager\". Only Admins can perform this action.",
+          "tags": [
+            "Admin"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "id",
+              "required": true,
+              "description": "User ID to promote",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User promoted successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "success": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Unauthorized access"
+            },
+            "404": {
+              "description": "User not found or already a manager"
+            }
+          }
+        }
+      },
+      "/getUserInfo": {
+        "get": {
+          "summary": "Get user information",
+          "tags": [
+            "User"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "User information fetched successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/editProfile": {
+        "patch": {
+          "summary": "Edit user profile",
+          "tags": [
+            "User"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "password": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "birthDate": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "gender": {
+                      "type": "string"
+                    },
+                    "City": {
+                      "type": "string"
+                    },
+                    "Address": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Profile updated successfully"
+            },
+            "400": {
+              "description": "Invalid update data"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/reserveSeat": {
+        "post": {
+          "summary": "Reserve a seat for a match",
+          "tags": [
+            "Reservation"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "matchId": {
+                      "type": "string"
+                    },
+                    "rowNumber": {
+                      "type": "integer"
+                    },
+                    "seatNumber": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Seat reserved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string"
+                      },
+                      "ticket": {
+                        "$ref": "#/components/schemas/Ticket"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Missing or invalid field"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Match or seat not found"
+            },
+            "409": {
+              "description": "Seat already reserved"
+            }
+          }
+        }
+      },
+      "/cancelReservation/{ticketId}": {
+        "delete": {
+          "summary": "Cancel a reservation",
+          "tags": [
+            "Reservation"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "ticketId",
+              "in": "path",
+              "required": true,
+              "description": "The ID of the ticket to cancel",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Reservation cancelled successfully"
+            },
+            "400": {
+              "description": "Invalid cancellation request (ticket within 3 days of match)"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Unauthorized to cancel the ticket"
+            },
+            "404": {
+              "description": "Ticket not found"
+            },
+            "500": {
+              "description": "Internal server error"
+            }
+          }
+        }
+      },
+      "/addStadium": {
+        "post": {
+          "summary": "Add a new stadium",
+          "description": "Only accessible by Managers, creates a new stadium with the provided details.",
+          "tags": [
+            "Stadium"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the stadium"
+                    },
+                    "vipRows": {
+                      "type": "integer",
+                      "description": "The number of VIP rows in the stadium"
+                    },
+                    "vipSeatsPerRow": {
+                      "type": "integer",
+                      "description": "The number of seats per VIP row"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Stadium created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Stadium"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing required fields or invalid data"
+            },
+            "404": {
+              "description": "Unauthorized access or resource not found"
+            }
+          }
+        }
+      },
+      "/getStadiums": {
+        "get": {
+          "summary": "Retrieve all stadiums",
+          "description": "Get a list of all stadiums in the system.",
+          "tags": [
+            "Stadium"
+          ],
+          "responses": {
+            "200": {
+              "description": "List of stadiums",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Stadium"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error occurred while fetching stadiums"
+            }
+          }
+        }
+      },
+      "/getMatches": {
+        "get": {
+          "summary": "Retrieve all matches",
+          "description": "Get a list of all scheduled matches, including stadium names.",
+          "tags": [
+            "Match"
+          ],
+          "responses": {
+            "200": {
+              "description": "List of matches with stadium names",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Match"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error occurred while fetching matches"
+            }
+          }
+        }
+      },
+      "/addMatch": {
+        "post": {
+          "summary": "Add a new match",
+          "description": "Only accessible by Managers, creates a new match with provided details.",
+          "tags": [
+            "Match"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "HomeTeam": {
+                      "type": "string"
+                    },
+                    "AwayTeam": {
+                      "type": "string"
+                    },
+                    "date_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "stadiumName": {
+                      "type": "string"
+                    },
+                    "Refree": {
+                      "type": "string"
+                    },
+                    "linesman1": {
+                      "type": "string"
+                    },
+                    "linesman2": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Match created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Match"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request, missing required fields or invalid data"
+            },
+            "404": {
+              "description": "Stadium not found or invalid date_time"
+            }
+          }
+        }
+      },
+      "/getStadiumIdByName/{name}": {
+        "get": {
+          "summary": "Retrieve stadium by name",
+          "description": "Get stadium details based on the provided name.",
+          "tags": [
+            "Stadium"
+          ],
+          "parameters": [
+            {
+              "name": "name",
+              "in": "path",
+              "required": true,
+              "description": "Name of the stadium to search for",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Stadium details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Stadium"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Stadium not found"
+            }
+          }
+        }
+      },
+      "/editMatch/{id}": {
+        "patch": {
+          "summary": "Edit match details",
+          "description": "Only accessible by Managers, updates match details for a specific match ID.",
+          "tags": [
+            "Match"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "Match ID to be updated",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "HomeTeam": {
+                      "type": "string"
+                    },
+                    "AwayTeam": {
+                      "type": "string"
+                    },
+                    "date_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "stadiumId": {
+                      "type": "string"
+                    },
+                    "Refree": {
+                      "type": "string"
+                    },
+                    "linesman1": {
+                      "type": "string"
+                    },
+                    "linesman2": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Match updated successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Match"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid updates or invalid data"
+            },
+            "404": {
+              "description": "Match not found"
+            }
+          }
+        }
+      },
+      "/getSeatsDetails/{id}": {
+        "get": {
+          "summary": "Retrieve seat details for a match",
+          "description": "Get a list of all seats for the match with their status (vacant/reserved).",
+          "tags": [
+            "Seat"
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "Match ID to get seat details for",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Seat details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SeatDetails"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Error fetching seat details"
+            },
+            "404": {
+              "description": "Match not found"
+            }
+          }
+        }
+      },
+      "/getMatchById/{id}": {
+        "get": {
+          "summary": "Retrieve match details by ID",
+          "description": "Get detailed match information for a specific match ID.",
+          "tags": [
+            "Match"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "Match ID to fetch details for",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Match details",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Match"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Match not found"
+            }
+          }
+        }
+      },
+      "/signup": {
+        "post": {
+          "summary": "Register a new user",
+          "tags": [
+            "Authentication"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "User created successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      },
+                      "token": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request (user already exists or invalid input)"
+            }
+          }
+        }
+      },
+      "/login": {
+        "post": {
+          "summary": "Log in an existing user",
+          "tags": [
+            "Authentication"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Login successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "user": {
+                        "$ref": "#/components/schemas/User"
+                      },
+                      "token": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid email or password"
+            }
+          }
+        }
+      },
+      "/logout": {
+        "post": {
+          "summary": "Logout the authenticated user",
+          "tags": [
+            "Authentication"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Logout successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "example": "Logged out successfully"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Logout failed due to server error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "customOptions": {}
+};
+  url = options.swaggerUrl || url
+  var urls = options.swaggerUrls
+  var customOptions = options.customOptions
+  var spec1 = options.swaggerDoc
+  var swaggerOptions = {
+    spec: spec1,
+    url: url,
+    urls: urls,
+    dom_id: '#swagger-ui',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "StandaloneLayout"
+  }
+  for (var attrname in customOptions) {
+    swaggerOptions[attrname] = customOptions[attrname];
+  }
+  var ui = SwaggerUIBundle(swaggerOptions)
+
+  if (customOptions.oauth) {
+    ui.initOAuth(customOptions.oauth)
+  }
+
+  if (customOptions.preauthorizeApiKey) {
+    const key = customOptions.preauthorizeApiKey.authDefinitionKey;
+    const value = customOptions.preauthorizeApiKey.apiKeyValue;
+    if (!!key && !!value) {
+      const pid = setInterval(() => {
+        const authorized = ui.preauthorizeApiKey(key, value);
+        if(!!authorized) clearInterval(pid);
+      }, 500)
+
+    }
+  }
+
+  if (customOptions.authAction) {
+    ui.authActions.authorize(customOptions.authAction)
+  }
+
+  window.ui = ui
+}

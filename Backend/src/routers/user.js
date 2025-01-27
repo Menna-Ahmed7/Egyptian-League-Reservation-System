@@ -4,7 +4,107 @@ const prisma = require("../middleware/prisma");
 const router = new express.Router();
 const bcrypt = require("bcryptjs");
 
-// Resource Creation
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     BearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     SignupRequest:
+ *       type: object
+ *       required:
+ *         - username
+ *         - password
+ *         - firstName
+ *         - lastName
+ *         - birthDate
+ *         - gender
+ *         - City
+ *         - Address
+ *         - emailAddress
+ *         - role
+ *       properties:
+ *         username:
+ *           type: string
+ *         password:
+ *           type: string
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         birthDate:
+ *           type: string
+ *           format: date
+ *         gender:
+ *           type: string
+ *         City:
+ *           type: string
+ *         Address:
+ *           type: string
+ *         emailAddress:
+ *           type: string
+ *           format: email
+ *         role:
+ *           type: string
+ *           enum: [Admin, Fan, Manager]
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         username:
+ *           type: string
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         emailAddress:
+ *           type: string
+ *         role:
+ *           type: string
+ *           enum: [Admin, Fan, Manager]
+ *     LoginRequest:
+ *       type: object
+ *       required:
+ *         - emailAddress
+ *         - password
+ *       properties:
+ *         emailAddress:
+ *           type: string
+ *         password:
+ *           type: string
+ */
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/SignupRequest'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Bad request (user already exists or invalid input)
+ */
+
 router.post("/signup", async (request, response) => {
   // console.log(request.body);
   try {
@@ -46,6 +146,33 @@ router.post("/signup", async (request, response) => {
   }
 });
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Log in an existing user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Invalid email or password
+ */
 router.post("/login", async (request, response) => {
   // console.log(request.body);
   try {
@@ -78,7 +205,28 @@ router.post("/login", async (request, response) => {
     console.error("Error Logging:", error.message);
   }
 });
-
+/**
+ * @swagger
+ * /logout:
+ *   post:
+ *     summary: Logout the authenticated user
+ *     tags: [Authentication]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logged out successfully
+ *       400:
+ *         description: Logout failed due to server error
+ */
 router.post("/logout", auth, async (request, response) => {
   try {
     // remove tokens not equal this

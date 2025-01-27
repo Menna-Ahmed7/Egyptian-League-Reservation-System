@@ -4,7 +4,45 @@ const prisma = require("../middleware/prisma");
 const router = new express.Router();
 const bcrypt = require("bcryptjs");
 
-// Resource Creation
+/**
+ * @swagger
+ * tags:
+ *   name: Admin
+ *   description: Admin management endpoints
+ */
+
+/**
+ * @swagger
+ * /getAllUsers:
+ *   get:
+ *     summary: Retrieve all users with role "Fan"
+ *     description: Only accessible by Admins, returns a list of users with the "Fan" role.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   username:
+ *                     type: string
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   emailAddress:
+ *                     type: string
+ *       403:
+ *         description: Unauthorized access
+ */
 router.get("/getAllUsers", auth, async (request, response) => {
   // console.log(request.body);
   try {
@@ -32,7 +70,38 @@ router.get("/getAllUsers", auth, async (request, response) => {
     console.log(error);
   }
 });
-
+/**
+ * @swagger
+ * /getManagers:
+ *   get:
+ *     summary: Retrieve all users with role "Manager"
+ *     description: Only accessible by Admins, returns a list of users with the "Manager" role.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of managers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                   username:
+ *                     type: string
+ *                   firstName:
+ *                     type: string
+ *                   lastName:
+ *                     type: string
+ *                   emailAddress:
+ *                     type: string
+ *       403:
+ *         description: Unauthorized access
+ */
 router.get("/getManagers", auth, async (request, response) => {
   // console.log(request.body);
   try {
@@ -59,7 +128,37 @@ router.get("/getManagers", auth, async (request, response) => {
     console.log(error);
   }
 });
-
+/**
+ * @swagger
+ * /deleteUser/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     description: Deletes a user if they exist. Only Admins can perform this action.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: string
+ *       404:
+ *         description: User not found
+ *       403:
+ *         description: Unauthorized access
+ */
 router.delete("/deleteUser/:id", auth, async (request, response) => {
   // console.log(request.body);
   const id = request.params.id;
@@ -95,7 +194,37 @@ router.delete("/deleteUser/:id", auth, async (request, response) => {
     console.log(error);
   }
 });
-
+/**
+ * @swagger
+ * /setAsManager/{id}:
+ *   post:
+ *     summary: Promote a user to manager
+ *     description: Changes a user's role to "Manager". Only Admins can perform this action.
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID to promote
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User promoted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: string
+ *       404:
+ *         description: User not found or already a manager
+ *       403:
+ *         description: Unauthorized access
+ */
 router.post("/setAsManager/:id", auth, async (request, response) => {
   // console.log(request.body);
   const id = request.params.id;

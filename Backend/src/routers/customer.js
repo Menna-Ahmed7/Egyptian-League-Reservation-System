@@ -4,6 +4,74 @@ const prisma = require("../middleware/prisma");
 const router = new express.Router();
 const validator = require("validator");
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         birthDate:
+ *           type: string
+ *           format: date
+ *         gender:
+ *           type: string
+ *         City:
+ *           type: string
+ *         Address:
+ *           type: string
+ *     Ticket:
+ *       type: object
+ *       properties:
+ *         match:
+ *           type: object
+ *           properties:
+ *             HomeTeam:
+ *               type: string
+ *             AwayTeam:
+ *               type: string
+ *             date_time:
+ *               type: string
+ *             stadium:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *         seat:
+ *           type: object
+ *           properties:
+ *             rowNumber:
+ *               type: integer
+ *             seatNumber:
+ *               type: integer
+ */
+
+/**
+ * @swagger
+ * /getUserInfo:
+ *   get:
+ *     summary: Get user information
+ *     tags: [User]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User information fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
 router.get("/getUserInfo", auth, async (request, response) => {
   // console.log(request.body);
   try {
@@ -49,6 +117,44 @@ router.get("/getUserInfo", auth, async (request, response) => {
     console.log(error);
   }
 });
+/**
+ * @swagger
+ * /editProfile:
+ *   patch:
+ *     summary: Edit user profile
+ *     tags: [User]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               password:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *               gender:
+ *                 type: string
+ *               City:
+ *                 type: string
+ *               Address:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       400:
+ *         description: Invalid update data
+ *       401:
+ *         description: Unauthorized
+ */
 router.patch("/editProfile", auth, async (request, response) => {
   // console.log(request.body);
   try {
@@ -90,6 +196,48 @@ router.patch("/editProfile", auth, async (request, response) => {
   }
 });
 
+/**
+ * @swagger
+ * /reserveSeat:
+ *   post:
+ *     summary: Reserve a seat for a match
+ *     tags: [Reservation]
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               matchId:
+ *                 type: string
+ *               rowNumber:
+ *                 type: integer
+ *               seatNumber:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Seat reserved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 ticket:
+ *                   $ref: '#/components/schemas/Ticket'
+ *       400:
+ *         description: Missing or invalid field
+ *       404:
+ *         description: Match or seat not found
+ *       409:
+ *         description: Seat already reserved
+ *       401:
+ *         description: Unauthorized
+ */
 router.post("/reserveSeat", auth, async (request, response) => {
   // console.log(request.body);
   // body: match id, seat id, pin number, credit card number
@@ -165,7 +313,35 @@ router.post("/reserveSeat", auth, async (request, response) => {
     response.status(400).send({ error: error, errorMessage: error.message });
   }
 });
-
+/**
+ * @swagger
+ * /cancelReservation/{ticketId}:
+ *   delete:
+ *     summary: Cancel a reservation
+ *     tags: [Reservation]
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: ticketId
+ *         in: path
+ *         required: true
+ *         description: The ID of the ticket to cancel
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Reservation cancelled successfully
+ *       400:
+ *         description: Invalid cancellation request (ticket within 3 days of match)
+ *       404:
+ *         description: Ticket not found
+ *       403:
+ *         description: Unauthorized to cancel the ticket
+ *       500:
+ *         description: Internal server error
+ *       401:
+ *         description: Unauthorized
+ */
 router.delete(
   "/cancelReservation/:ticketId",
   auth,
